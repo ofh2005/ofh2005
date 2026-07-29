@@ -89,13 +89,16 @@ export default function ClientsTab(props: {
   const [showAddMachine, setShowAddMachine] = useState(false);
   const [showAddOil, setShowAddOil] = useState(false);
 
-  const filteredClients = clients.filter((c) => {
-    if (filterVille !== "Toutes" && c.ville !== filterVille) return false;
-    if (filterSegment !== "Tous" && c.segment !== filterSegment) return false;
-    if (filterStatus !== "Tous" && c.status !== filterStatus) return false;
-    if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const filteredClients = clients
+    .filter((c) => {
+      if (filterVille !== "Toutes" && c.ville !== filterVille) return false;
+      if (filterSegment !== "Tous" && c.segment !== filterSegment) return false;
+      if (filterStatus !== "Tous" && c.status !== filterStatus) return false;
+      if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    })
+    // Prospects sink to the bottom — everything further along the pipeline stays on top.
+    .sort((a, b) => (a.status === "prospect" ? 1 : 0) - (b.status === "prospect" ? 1 : 0));
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 140px)" }}>
