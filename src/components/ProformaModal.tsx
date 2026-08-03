@@ -163,9 +163,17 @@ export default function ProformaModal({
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, marginTop: 18 }}>
             <tbody>
               <tr>
-                <td style={{ padding: "6px 8px" }}>Sous-total produits</td>
-                <td style={{ padding: "6px 8px", textAlign: "right" }}>{fmt(calc.revenue)}</td>
+                <td style={{ padding: "6px 8px" }}>Sous-total produits{calc.discountAmount > 0 ? " (brut)" : ""}</td>
+                <td style={{ padding: "6px 8px", textAlign: "right" }}>{fmt(calc.grossRevenue)}</td>
               </tr>
+              {calc.discountAmount > 0 && (
+                <tr>
+                  <td style={{ padding: "6px 8px" }}>
+                    Remise commerciale{client.discountType === "percent" ? ` (${client.discountValue}%)` : ""}
+                  </td>
+                  <td style={{ padding: "6px 8px", textAlign: "right" }}>− {fmt(calc.discountAmount)}</td>
+                </tr>
+              )}
               <tr>
                 <td style={{ padding: "6px 8px" }}>Transport international ({calc.weight.toFixed(2)} kg)</td>
                 <td style={{ padding: "6px 8px", textAlign: "right" }}>{fmt(calc.transportIntl)}</td>

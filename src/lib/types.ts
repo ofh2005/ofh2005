@@ -1,5 +1,7 @@
 export type Tariff = "B2B" | "B2C";
 
+export type DiscountType = "percent" | "amount";
+
 export type StatusId =
   | "prospect"
   | "prospect_contacte"
@@ -75,11 +77,15 @@ export interface Client {
   manualWeight: number | "";
   margeReelle: number | "";
   notes: string;
+  discountType: DiscountType;
+  discountValue: number;
   items: ClientMachineItem[];
   oilItems: ClientOilItem[];
 }
 
 export interface ClientCalc {
+  grossRevenue: number;
+  discountAmount: number;
   revenue: number;
   costRetail: number;
   costFranchise: number;

@@ -91,6 +91,8 @@ function rowToClient(
     manualWeight: r.manual_weight == null ? "" : Number(r.manual_weight),
     margeReelle: r.marge_reelle == null ? "" : Number(r.marge_reelle),
     notes: String(r.notes ?? ""),
+    discountType: (r.discount_type === "amount" ? "amount" : "percent") as Client["discountType"],
+    discountValue: Number(r.discount_value ?? 0),
     items,
     oilItems,
   };
@@ -207,6 +209,8 @@ function clientPatchToDb(patch: Partial<Client>): Record<string, unknown> {
   if (patch.margeReelle !== undefined)
     dbPatch.marge_reelle = patch.margeReelle === "" ? null : patch.margeReelle;
   if (patch.notes !== undefined) dbPatch.notes = patch.notes;
+  if (patch.discountType !== undefined) dbPatch.discount_type = patch.discountType;
+  if (patch.discountValue !== undefined) dbPatch.discount_value = patch.discountValue;
   dbPatch.updated_at = new Date().toISOString();
   return dbPatch;
 }

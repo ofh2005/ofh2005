@@ -63,6 +63,8 @@ create table if not exists clients (
   manual_weight numeric,
   marge_reelle numeric,
   notes text not null default '',
+  discount_type text not null default 'percent',
+  discount_value numeric not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

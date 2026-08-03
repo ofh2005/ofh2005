@@ -25,8 +25,11 @@ export const oilCost = (o: Oil, exchangeRate: number) => ({
 });
 
 /**
- * Exact port of computeClient() from the original index.html tracker.
+ * Exact port of computeClient() from the original index.html tracker, plus a
+ * commercial discount applied to the product revenue.
  * Transport is a pass-through billed to the client — never deducted from margin.
+ * The discount, unlike transport, comes straight out of Nia Al Oud's margin —
+ * it reduces what the client pays for the products themselves.
  */
 export function computeClient(
   client: Client,
@@ -34,7 +37,7 @@ export function computeClient(
   oils: Oil[],
   settings: Settings
 ): ClientCalc {
-  let revenue = 0,
+  let grossRevenue = 0,
     costRetail = 0,
     costFranchise = 0,
     weightCatalog = 0;
@@ -48,7 +51,7 @@ export function computeClient(
         ? num(it.priceOverride)
         : catalogUnit;
     const costs = machineCost(m, settings.exchangeRate);
-    revenue += unit * it.qty;
+    grossRevenue += unit * it.qty;
     costRetail += costs.retail * it.qty;
     costFranchise += costs.franchise * it.qty;
     weightCatalog += m.weightKg * it.qty;
@@ -62,11 +65,18 @@ export function computeClient(
         ? num(it.priceOverride)
         : o.catalogPrice;
     const costs = oilCost(o, settings.exchangeRate);
-    revenue += unit * it.qty;
+    grossRevenue += unit * it.qty;
     costRetail += costs.retail * it.qty;
     costFranchise += costs.franchise * it.qty;
     weightCatalog += o.weightKg * it.qty;
   });
+
+  const rawDiscount =
+    client.discountType === "amount"
+      ? num(client.discountValue)
+      : grossRevenue * (num(client.discountValue) / 100);
+  const discountAmount = Math.min(Math.max(rawDiscount, 0), grossRevenue);
+  const revenue = grossRevenue - discountAmount;
 
   const weightAuto = weightCatalog * settings.packagingFactor;
   const weight =
@@ -81,6 +91,8 @@ export function computeClient(
   const marginFranchise = revenue - costFranchise;
 
   return {
+    grossRevenue,
+    discountAmount,
     revenue,
     costRetail,
     costFranchise,
@@ -112,6 +124,8 @@ export function mkClient(over: Partial<Client> = {}): Client {
     manualWeight: "",
     margeReelle: "",
     notes: "",
+    discountType: "percent",
+    discountValue: 0,
     items: [],
     oilItems: [],
     ...over,

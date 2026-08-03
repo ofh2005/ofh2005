@@ -269,6 +269,48 @@ export default function ClientsTab(props: {
                   </div>
                 </div>
 
+                {/* REMISE */}
+                <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid #F1EFE9", display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#6B7280", textTransform: "uppercase", letterSpacing: 0.5 }}>
+                    Remise commerciale
+                  </span>
+                  <div style={{ display: "flex", border: "1px solid #DDD", borderRadius: 6, overflow: "hidden" }}>
+                    {(["percent", "amount"] as const).map((t) => (
+                      <div
+                        key={t}
+                        onClick={() => updateClient(selected.id, { discountType: t })}
+                        style={{
+                          padding: "4px 10px",
+                          cursor: "pointer",
+                          background: selected.discountType === t ? NAVY : "white",
+                          color: selected.discountType === t ? "white" : "#374151",
+                          fontSize: 12,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {t === "percent" ? "%" : "XAF"}
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <span style={{ color: "#6B7280", marginRight: 6 }}>
+                      {selected.discountType === "percent" ? "Remise (%)" : "Remise (XAF)"}
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={selected.discountValue}
+                      onChange={(e) => updateClient(selected.id, { discountValue: numFn(e.target.value) })}
+                      style={{ ...inputStyle, width: 90 }}
+                    />
+                  </div>
+                  {calc && calc.discountAmount > 0 && (
+                    <div style={{ fontSize: 12, color: GOLD, fontWeight: 600 }}>
+                      − {fmt(calc.discountAmount)} sur {fmt(calc.grossRevenue)} de produits
+                    </div>
+                  )}
+                </div>
+
                 {/* MACHINES */}
                 <div style={{ marginTop: 14 }}>
                   <SectionLabel>Machines</SectionLabel>
@@ -478,6 +520,15 @@ export default function ClientsTab(props: {
                   </div>
 
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14, marginBottom: 16 }}>
+                    {calc.discountAmount > 0 && (
+                      <>
+                        <ResultBox label="Sous-total produits (brut)" value={fmt(calc.grossRevenue)} />
+                        <ResultBox
+                          label={`Remise (${selected.discountType === "percent" ? selected.discountValue + "%" : "forfait"})`}
+                          value={`− ${fmt(calc.discountAmount)}`}
+                        />
+                      </>
+                    )}
                     <ResultBox label="Prix total facturé (hors transport)" value={fmt(calc.revenue)} />
                     <ResultBox label="Poids retenu" value={`${calc.weight.toFixed(2)} kg`} />
                     <ResultBox label="Transport intl. à facturer (pass-through)" value={fmt(calc.transportIntl)} />
