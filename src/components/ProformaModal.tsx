@@ -2,7 +2,7 @@
 
 import { useState, type CSSProperties } from "react";
 import type { Client, ClientCalc, Machine, Oil } from "@/lib/types";
-import { NAVY } from "@/lib/constants";
+import { NAVY, BANK_DETAILS } from "@/lib/constants";
 import { fmt } from "@/lib/calc";
 import { generateProformaDocx } from "@/lib/proformaDocx";
 
@@ -217,6 +217,24 @@ export default function ProformaModal({
             <li>Garantie fabricant 1 an — installation &amp; maintenance incluses.</li>
             <li>Proforma valable 30 jours à compter de la date d&apos;émission.</li>
           </ul>
+
+          <div style={{ fontSize: 11, fontWeight: 700, color: NAVY, textTransform: "uppercase", margin: "18px 0 6px" }}>Coordonnées bancaires</div>
+          <div style={{ background: "#F5F5F5", borderRadius: 8, padding: 12, fontSize: 12, color: "#333", display: "grid", gridTemplateColumns: "auto 1fr", columnGap: 10, rowGap: 3, maxWidth: 420 }}>
+            <span style={{ color: "#666" }}>Intitulé compte</span>
+            <span style={{ fontWeight: 600 }}>{BANK_DETAILS.accountName}</span>
+            <span style={{ color: "#666" }}>Code SWIFT</span>
+            <span style={{ fontWeight: 600 }}>{BANK_DETAILS.swift}</span>
+            <span style={{ color: "#666" }}>Code banque</span>
+            <span style={{ fontWeight: 600 }}>{BANK_DETAILS.bankCode}</span>
+            <span style={{ color: "#666" }}>Code guichet</span>
+            <span style={{ fontWeight: 600 }}>{BANK_DETAILS.branchCode}</span>
+            <span style={{ color: "#666" }}>N° de compte</span>
+            <span style={{ fontWeight: 600 }}>{BANK_DETAILS.accountNumber}</span>
+            <span style={{ color: "#666" }}>Clé</span>
+            <span style={{ fontWeight: 600 }}>{BANK_DETAILS.key}</span>
+            <span style={{ color: "#666" }}>IBAN</span>
+            <span style={{ fontWeight: 600 }}>{BANK_DETAILS.iban}</span>
+          </div>
 
           <div style={{ marginTop: 28, fontSize: 12 }}>
             <div>Hassan Oumarou Fadil</div>

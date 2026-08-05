@@ -14,6 +14,7 @@ import {
 } from "docx";
 import type { Client, ClientCalc, Machine, Oil } from "./types";
 import { fmt } from "./calc";
+import { BANK_DETAILS } from "./constants";
 
 const NAVY_HEX = "1B2A4A";
 const GOLD_HEX = "B8892B";
@@ -281,6 +282,41 @@ export async function generateProformaDocx(
                 children: [new TextRun({ text: t, size: 18, color: "444444" })],
               })
           ),
+
+          new Paragraph({
+            spacing: { before: 200, after: 100 },
+            children: [new TextRun({ text: "COORDONNÉES BANCAIRES", bold: true, size: 18, color: NAVY_HEX })],
+          }),
+          new Table({
+            width: { size: 60, type: WidthType.PERCENTAGE },
+            rows: [
+              ["Intitulé compte", BANK_DETAILS.accountName],
+              ["Code SWIFT", BANK_DETAILS.swift],
+              ["Code banque", BANK_DETAILS.bankCode],
+              ["Code guichet", BANK_DETAILS.branchCode],
+              ["N° de compte", BANK_DETAILS.accountNumber],
+              ["Clé", BANK_DETAILS.key],
+              ["IBAN", BANK_DETAILS.iban],
+            ].map(
+              ([label, value]) =>
+                new TableRow({
+                  children: [
+                    new TableCell({
+                      width: { size: 35, type: WidthType.PERCENTAGE },
+                      borders: NO_BORDER,
+                      shading: { fill: "F5F5F5", type: ShadingType.CLEAR, color: "auto" },
+                      children: [new Paragraph({ children: [new TextRun({ text: label, size: 18, color: "666666" })] })],
+                    }),
+                    new TableCell({
+                      width: { size: 65, type: WidthType.PERCENTAGE },
+                      borders: NO_BORDER,
+                      shading: { fill: "F5F5F5", type: ShadingType.CLEAR, color: "auto" },
+                      children: [new Paragraph({ children: [new TextRun({ text: value, bold: true, size: 18 })] })],
+                    }),
+                  ],
+                })
+            ),
+          }),
 
           new Paragraph({
             spacing: { before: 400 },

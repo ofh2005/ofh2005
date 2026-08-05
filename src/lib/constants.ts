@@ -8,6 +8,16 @@ export const CREAM = "#FAF8F4";
 export const RED = "#DC2626";
 export const GREEN = "#16A34A";
 
+export const BANK_DETAILS = {
+  accountName: "HASSAN OUAMROU FADIL",
+  swift: "CCEICMCX",
+  bankCode: "10005",
+  branchCode: "00061",
+  accountNumber: "09575401051",
+  key: "45",
+  iban: "CM21 10005 00061 09575401051 - 45",
+};
+
 export const VILLES = ["Douala", "Yaoundé", "Garoua", "Ebolowa", "—"];
 
 export const SEGMENTS = [
