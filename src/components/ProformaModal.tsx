@@ -1,9 +1,10 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import type { Client, ClientCalc, Machine, Oil } from "@/lib/types";
 import { NAVY } from "@/lib/constants";
 import { fmt } from "@/lib/calc";
+import { generateProformaDocx } from "@/lib/proformaDocx";
 
 const proTh: CSSProperties = { textAlign: "left", padding: "6px 8px", fontSize: 10, textTransform: "uppercase" };
 const proTd: CSSProperties = { padding: "6px 8px", borderBottom: "1px solid #EEE" };
@@ -23,6 +24,24 @@ export default function ProformaModal({
 }) {
   const today = new Date().toLocaleDateString("fr-FR");
   const ref = `NAO-PROF-${client.name.replace(/[^A-Za-z0-9]/g, "").slice(0, 8).toUpperCase()}-${new Date().getFullYear()}`;
+  const [downloading, setDownloading] = useState(false);
+
+  const downloadDocx = async () => {
+    setDownloading(true);
+    try {
+      const blob = await generateProformaDocx(client, calc, machines, oils);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${ref}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div
@@ -50,6 +69,13 @@ export default function ProformaModal({
         <div id="nao-proforma-noprint" style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: 10, background: "#F5F5F5" }}>
           <button onClick={() => window.print()} style={{ background: NAVY, color: "white", border: "none", borderRadius: 6, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
             🖨️ Imprimer / Exporter PDF
+          </button>
+          <button
+            onClick={downloadDocx}
+            disabled={downloading}
+            style={{ background: "#F3EFE4", border: "1px solid #D9B563", color: "#B8892B", borderRadius: 6, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: downloading ? "default" : "pointer", opacity: downloading ? 0.6 : 1 }}
+          >
+            {downloading ? "Génération…" : "⬇️ Télécharger en Word"}
           </button>
           <button onClick={onClose} style={{ background: "white", border: "1px solid #DDD", borderRadius: 6, padding: "8px 16px", fontSize: 13, cursor: "pointer" }}>
             Fermer
