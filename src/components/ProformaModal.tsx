@@ -174,20 +174,15 @@ export default function ProformaModal({
                   <td style={{ padding: "6px 8px", textAlign: "right" }}>− {fmt(calc.discountAmount)}</td>
                 </tr>
               )}
-              <tr>
-                <td style={{ padding: "6px 8px" }}>Transport international ({calc.weight.toFixed(2)} kg)</td>
-                <td style={{ padding: "6px 8px", textAlign: "right" }}>{fmt(calc.transportIntl)}</td>
-              </tr>
-              <tr>
-                <td style={{ padding: "6px 8px" }}>Transport intérieur (forfait)</td>
-                <td style={{ padding: "6px 8px", textAlign: "right" }}>{fmt(calc.transportDomestic)}</td>
-              </tr>
               <tr style={{ background: NAVY, color: "white" }}>
-                <td style={{ padding: "10px 8px", fontWeight: 800 }}>TOTAL GÉNÉRAL</td>
+                <td style={{ padding: "10px 8px", fontWeight: 800 }}>TOTAL GÉNÉRAL (coût &amp; fret inclus)</td>
                 <td style={{ padding: "10px 8px", textAlign: "right", fontWeight: 800, fontSize: 16 }}>{fmt(calc.revenue + calc.transport)}</td>
               </tr>
             </tbody>
           </table>
+          <div style={{ fontSize: 11, color: "#999", marginTop: 6 }}>
+            Le transport international et le fret intérieur sont inclus dans le total ci-dessus.
+          </div>
 
           <div style={{ fontSize: 11, fontWeight: 700, color: NAVY, textTransform: "uppercase", margin: "22px 0 6px" }}>Conditions commerciales</div>
           <ul style={{ fontSize: 11, color: "#444", paddingLeft: 18, margin: 0 }}>
