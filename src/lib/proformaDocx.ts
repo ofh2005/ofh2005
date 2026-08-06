@@ -236,7 +236,7 @@ export async function generateProformaDocx(
                     shading: { fill: NAVY_HEX, type: ShadingType.CLEAR, color: "auto" },
                     children: [
                       new Paragraph({
-                        children: [new TextRun({ text: "TOTAL GÉNÉRAL (coût & fret inclus)", bold: true, size: 20, color: "FFFFFF" })],
+                        children: [new TextRun({ text: "TOTAL GÉNÉRAL", bold: true, size: 20, color: "FFFFFF" })],
                       }),
                     ],
                   }),
@@ -271,7 +271,6 @@ export async function generateProformaDocx(
             children: [new TextRun({ text: "CONDITIONS COMMERCIALES", bold: true, size: 18, color: NAVY_HEX })],
           }),
           ...[
-            "Prix EX Works Dubaï, EAU — transport et livraison inclus dans le total ci-dessus.",
             "Paiement intégral (100%) exigé avant expédition — Orange Money / virement.",
             "Garantie fabricant 1 an — installation et maintenance incluses.",
             "Proforma valable 30 jours à compter de la date d'émission.",
