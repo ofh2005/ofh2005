@@ -2,7 +2,7 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import { NAVY, RED, GREEN, GOLD, GOLD_LIGHT } from "@/lib/constants";
-import { pct } from "@/lib/calc";
+import { pct, fmt } from "@/lib/calc";
 
 export const inputStyle: CSSProperties = {
   border: "1px solid #DDD",
@@ -108,6 +108,40 @@ export function StatPill({
     <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 10, padding: "8px 14px", minWidth: 140 }}>
       <div style={{ fontSize: 11, color: "#C9D2E3" }}>{label}</div>
       <div style={{ fontSize: 16, fontWeight: 700, color: gold ? GOLD_LIGHT : "white" }}>{value}</div>
+    </div>
+  );
+}
+
+export function GoalProgressBar({
+  label,
+  current,
+  goal,
+}: {
+  label: string;
+  current: number;
+  goal: number;
+}) {
+  const pctValue = goal > 0 ? (current / goal) * 100 : 0;
+  const barPct = Math.min(Math.max(pctValue, 0), 100);
+  return (
+    <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "10px 16px", marginBottom: 12 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: "#FFF3DC" }}>🎯 {label}</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: GOLD_LIGHT }}>
+          {fmt(current)} / {fmt(goal)} ({pctValue.toFixed(1)}%)
+        </span>
+      </div>
+      <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, height: 10, overflow: "hidden" }}>
+        <div
+          style={{
+            width: `${barPct}%`,
+            height: "100%",
+            background: `linear-gradient(90deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
+            borderRadius: 20,
+            transition: "width 0.3s ease",
+          }}
+        />
+      </div>
     </div>
   );
 }

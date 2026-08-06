@@ -12,8 +12,8 @@ import {
 } from "@/lib/calc";
 import * as db from "@/lib/db";
 import type { Client, ClientOilItem, Machine, Oil, Settings } from "@/lib/types";
-import { NAVY, NAVY_LIGHT, GOLD_LIGHT } from "@/lib/constants";
-import { StatPill } from "@/components/ui";
+import { NAVY, NAVY_LIGHT, GOLD_LIGHT, BABA_GOAL } from "@/lib/constants";
+import { StatPill, GoalProgressBar } from "@/components/ui";
 import ClientsTab from "@/components/ClientsTab";
 import CatalogueTab from "@/components/CatalogueTab";
 import PipelineTab from "@/components/PipelineTab";
@@ -235,16 +235,33 @@ export default function Dashboard({
   const calc = useMemo(() => (selected ? compute(selected) : null), [selected, compute]);
 
   const dashboardStats = useMemo(() => {
+    // Ribadou and Suzanne are already-closed, real historical deals — never
+    // count them toward the "potential clients" Baba goal, regardless of status.
+    const excludedFromGoal = ["ribadou", "suzanne"];
     let pipelineRevenue = 0,
       marginRetailSignedPaid = 0,
-      marginRetailProspects = 0;
+      marginRetailProspects = 0,
+      provisionalRevenue = 0;
     clients.forEach((c) => {
       const r = compute(c);
       pipelineRevenue += r.revenue;
-      if (c.status === "signe_paye") marginRetailSignedPaid += r.marginRetail;
-      else marginRetailProspects += r.marginRetail;
+      if (c.status === "signe_paye") {
+        marginRetailSignedPaid += r.marginRetail;
+      } else {
+        marginRetailProspects += r.marginRetail;
+        const nameLower = c.name.toLowerCase();
+        if (!excludedFromGoal.some((n) => nameLower.includes(n))) {
+          provisionalRevenue += r.revenue;
+        }
+      }
     });
-    return { totalClients: clients.length, pipelineRevenue, marginRetailSignedPaid, marginRetailProspects };
+    return {
+      totalClients: clients.length,
+      pipelineRevenue,
+      marginRetailSignedPaid,
+      marginRetailProspects,
+      provisionalRevenue,
+    };
   }, [clients, compute]);
 
   /* ---------- export / import (safety net JSON backup) ---------- */
@@ -373,6 +390,11 @@ export default function Dashboard({
   return (
     <div style={{ fontFamily: "'Inter','Helvetica Neue',system-ui,sans-serif", background: "#FAF8F4", minHeight: "100vh", color: "#1F2937" }}>
       <div style={{ background: `linear-gradient(135deg, ${NAVY} 0%, ${NAVY_LIGHT} 100%)`, color: "white", padding: "16px 24px" }}>
+        <GoalProgressBar
+          label={`Progression vers l'objectif Baba (${(BABA_GOAL / 1_000_000).toLocaleString("fr-FR")}M XAF)`}
+          current={dashboardStats.provisionalRevenue}
+          goal={BABA_GOAL}
+        />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <div>
             <div style={{ fontSize: 11, letterSpacing: 2, color: GOLD_LIGHT, fontWeight: 600 }}>NIA AL OUD DISTRIBUTION</div>

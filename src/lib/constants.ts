@@ -8,6 +8,8 @@ export const CREAM = "#FAF8F4";
 export const RED = "#DC2626";
 export const GREEN = "#16A34A";
 
+export const BABA_GOAL = 4_000_000;
+
 export const BANK_DETAILS = {
   accountName: "HASSAN OUAMROU FADIL",
   swift: "CCEICMCX",
