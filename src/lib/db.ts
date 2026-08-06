@@ -8,6 +8,9 @@ import type {
   Settings,
   StatusId,
   Tariff,
+  Task,
+  TaskCategory,
+  TaskStatus,
 } from "./types";
 
 /* ---------- row -> app type mappers ---------- */
@@ -98,10 +101,24 @@ function rowToClient(
   };
 }
 
+function rowToTask(r: Record<string, unknown>): Task {
+  return {
+    id: String(r.id),
+    title: String(r.title ?? ""),
+    notes: String(r.notes ?? ""),
+    category: (r.category === "administratif" ? "administratif" : "pipeline") as TaskCategory,
+    dossier: String(r.dossier ?? ""),
+    status: String(r.status ?? "a_faire") as TaskStatus,
+    clientId: r.client_id == null ? null : String(r.client_id),
+    dueDate: r.due_date == null ? null : String(r.due_date),
+    createdAt: String(r.created_at ?? ""),
+  };
+}
+
 /* ---------- reads ---------- */
 
 export async function fetchAllData(supabase: SupabaseClient) {
-  const [settingsRes, machinesRes, oilsRes, clientsRes, itemsRes, oilItemsRes] =
+  const [settingsRes, machinesRes, oilsRes, clientsRes, itemsRes, oilItemsRes, tasksRes] =
     await Promise.all([
       supabase.from("settings").select("*").eq("id", 1).maybeSingle(),
       supabase.from("machines").select("*").order("sort_order"),
@@ -109,6 +126,7 @@ export async function fetchAllData(supabase: SupabaseClient) {
       supabase.from("clients").select("*").order("created_at", { ascending: false }),
       supabase.from("client_machine_items").select("*"),
       supabase.from("client_oil_items").select("*"),
+      supabase.from("tasks").select("*").order("created_at", { ascending: false }),
     ]);
 
   const settings = settingsRes.data
@@ -138,7 +156,9 @@ export async function fetchAllData(supabase: SupabaseClient) {
     )
   );
 
-  return { settings, machines, oils, clients };
+  const tasks = (tasksRes.data ?? []).map(rowToTask);
+
+  return { settings, machines, oils, clients, tasks };
 }
 
 /* ---------- writes ---------- */
@@ -299,4 +319,41 @@ export async function updateOilItem(
 
 export async function deleteOilItem(supabase: SupabaseClient, lineId: string) {
   await supabase.from("client_oil_items").delete().eq("id", lineId);
+}
+
+/* ---------- tasks (Tableau de bord) ---------- */
+
+function taskPatchToDb(patch: Partial<Task>): Record<string, unknown> {
+  const dbPatch: Record<string, unknown> = {};
+  if (patch.title !== undefined) dbPatch.title = patch.title;
+  if (patch.notes !== undefined) dbPatch.notes = patch.notes;
+  if (patch.category !== undefined) dbPatch.category = patch.category;
+  if (patch.dossier !== undefined) dbPatch.dossier = patch.dossier;
+  if (patch.status !== undefined) dbPatch.status = patch.status;
+  if (patch.clientId !== undefined) dbPatch.client_id = patch.clientId;
+  if (patch.dueDate !== undefined) dbPatch.due_date = patch.dueDate;
+  dbPatch.updated_at = new Date().toISOString();
+  return dbPatch;
+}
+
+export async function insertTask(supabase: SupabaseClient, task: Task) {
+  const { data, error } = await supabase
+    .from("tasks")
+    .insert(taskPatchToDb(task))
+    .select()
+    .single();
+  if (error || !data) throw error ?? new Error("insert task failed");
+  return String(data.id);
+}
+
+export async function updateTaskRow(
+  supabase: SupabaseClient,
+  id: string,
+  patch: Partial<Task>
+) {
+  await supabase.from("tasks").update(taskPatchToDb(patch)).eq("id", id);
+}
+
+export async function deleteTaskRow(supabase: SupabaseClient, id: string) {
+  await supabase.from("tasks").delete().eq("id", id);
 }

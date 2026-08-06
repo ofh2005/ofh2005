@@ -24,6 +24,7 @@ export default async function Home() {
       initialMachines={data.machines}
       initialOils={data.oils}
       initialClients={data.clients}
+      initialTasks={data.tasks}
     />
   );
 }

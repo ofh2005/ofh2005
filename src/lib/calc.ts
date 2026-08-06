@@ -1,4 +1,4 @@
-import type { Client, ClientCalc, Machine, Oil, Settings } from "./types";
+import type { Client, ClientCalc, Machine, Oil, Settings, Task } from "./types";
 
 export const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -128,6 +128,21 @@ export function mkClient(over: Partial<Client> = {}): Client {
     discountValue: 0,
     items: [],
     oilItems: [],
+    ...over,
+  };
+}
+
+export function mkTask(over: Partial<Task> = {}): Task {
+  return {
+    id: uid(),
+    title: "",
+    notes: "",
+    category: "pipeline",
+    dossier: "",
+    status: "a_faire",
+    clientId: null,
+    dueDate: null,
+    createdAt: new Date().toISOString(),
     ...over,
   };
 }

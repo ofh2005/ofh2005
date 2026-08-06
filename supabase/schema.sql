@@ -88,9 +88,24 @@ create table if not exists client_oil_items (
   label text not null default ''
 );
 
+-- ---------- Tableau de bord : actions & dossiers à suivre ----------
+create table if not exists tasks (
+  id uuid primary key default gen_random_uuid(),
+  title text not null default '',
+  notes text not null default '',
+  category text not null default 'pipeline',
+  dossier text not null default '',
+  status text not null default 'a_faire',
+  client_id uuid references clients(id) on delete set null,
+  due_date date,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create index if not exists idx_client_machine_items_client on client_machine_items(client_id);
 create index if not exists idx_client_oil_items_client on client_oil_items(client_id);
 create index if not exists idx_clients_status on clients(status);
+create index if not exists idx_tasks_status on tasks(status);
 
 -- ============================================================
 -- Row Level Security — single authenticated user, full access
@@ -101,6 +116,7 @@ alter table oils enable row level security;
 alter table clients enable row level security;
 alter table client_machine_items enable row level security;
 alter table client_oil_items enable row level security;
+alter table tasks enable row level security;
 
 create policy "authenticated full access" on settings
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
@@ -113,6 +129,8 @@ create policy "authenticated full access" on clients
 create policy "authenticated full access" on client_machine_items
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 create policy "authenticated full access" on client_oil_items
+  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+create policy "authenticated full access" on tasks
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
 -- ============================================================

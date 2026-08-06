@@ -83,6 +83,21 @@ export interface Client {
   oilItems: ClientOilItem[];
 }
 
+export type TaskCategory = "pipeline" | "administratif";
+export type TaskStatus = "a_faire" | "en_cours" | "fait";
+
+export interface Task {
+  id: string;
+  title: string;
+  notes: string;
+  category: TaskCategory;
+  dossier: string;
+  status: TaskStatus;
+  clientId: string | null;
+  dueDate: string | null;
+  createdAt: string;
+}
+
 export interface ClientCalc {
   grossRevenue: number;
   discountAmount: number;

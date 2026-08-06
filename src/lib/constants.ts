@@ -1,4 +1,4 @@
-import type { StatusId } from "./types";
+import type { StatusId, TaskCategory, TaskStatus } from "./types";
 
 export const NAVY = "#1B2A4A";
 export const NAVY_LIGHT = "#2A3F66";
@@ -19,6 +19,19 @@ export const BANK_DETAILS = {
   key: "45",
   iban: "CM21 10005 00061 09575401051 - 45",
 };
+
+export const TASK_STATUSES: { id: TaskStatus; label: string; color: string }[] = [
+  { id: "a_faire", label: "À faire", color: "#9CA3AF" },
+  { id: "en_cours", label: "En cours / En attente", color: "#38BDF8" },
+  { id: "fait", label: "Fait", color: GREEN },
+];
+
+export const TASK_CATEGORIES: { id: TaskCategory; label: string; color: string }[] = [
+  { id: "pipeline", label: "Pipeline", color: GOLD },
+  { id: "administratif", label: "Administratif", color: NAVY_LIGHT },
+];
+
+export const DOSSIER_SUGGESTIONS = ["RCCM", "Banque", "Crédit", "Franchise"];
 
 export const VILLES = ["Douala", "Yaoundé", "Garoua", "Ebolowa", "—"];
 

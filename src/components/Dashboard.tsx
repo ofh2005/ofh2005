@@ -7,31 +7,35 @@ import {
   computeClient,
   fmt,
   mkClient,
+  mkTask,
   num,
   uid,
 } from "@/lib/calc";
 import * as db from "@/lib/db";
-import type { Client, ClientOilItem, Machine, Oil, Settings } from "@/lib/types";
+import type { Client, ClientOilItem, Machine, Oil, Settings, Task } from "@/lib/types";
 import { NAVY, NAVY_LIGHT, GOLD_LIGHT, BABA_GOAL } from "@/lib/constants";
 import { StatPill, GoalProgressBar } from "@/components/ui";
 import ClientsTab from "@/components/ClientsTab";
 import CatalogueTab from "@/components/CatalogueTab";
 import PipelineTab from "@/components/PipelineTab";
+import TasksTab from "@/components/TasksTab";
 import ProformaModal from "@/components/ProformaModal";
 import { logout } from "@/lib/actions/auth";
 
-type Tab = "clients" | "catalogue" | "pipeline";
+type Tab = "clients" | "catalogue" | "pipeline" | "tasks";
 
 export default function Dashboard({
   initialSettings,
   initialMachines,
   initialOils,
   initialClients,
+  initialTasks,
 }: {
   initialSettings: Settings;
   initialMachines: Machine[];
   initialOils: Oil[];
   initialClients: Client[];
+  initialTasks: Task[];
 }) {
   const supabase = useMemo(() => createClient(), []);
   const schedule = useDebouncedWriter();
@@ -40,6 +44,7 @@ export default function Dashboard({
   const [machines, setMachines] = useState<Machine[]>(initialMachines);
   const [oils, setOils] = useState<Oil[]>(initialOils);
   const [clients, setClients] = useState<Client[]>(initialClients);
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [selectedId, setSelectedId] = useState<string | null>(
     initialClients[0]?.id ?? null
   );
@@ -117,6 +122,35 @@ export default function Dashboard({
       setClients((cs) => cs.filter((c) => c.id !== id));
       setSelectedId((cur) => (cur === id ? null : cur));
       withSaving(() => db.deleteClientRow(supabase, id));
+    },
+    [supabase, withSaving]
+  );
+
+  /* ---------- tasks (Tableau de bord) ---------- */
+  const addTask = useCallback(
+    (patch: Partial<Task>) => {
+      const t = mkTask(patch);
+      setTasks((ts) => [t, ...ts]);
+      withSaving(async () => {
+        const realId = await db.insertTask(supabase, t);
+        setTasks((ts) => ts.map((x) => (x.id === t.id ? { ...x, id: realId } : x)));
+      });
+    },
+    [supabase, withSaving]
+  );
+
+  const updateTask = useCallback(
+    (id: string, patch: Partial<Task>) => {
+      setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+      schedule(`task:${id}`, () => withSaving(() => db.updateTaskRow(supabase, id, patch)));
+    },
+    [schedule, supabase, withSaving]
+  );
+
+  const deleteTask = useCallback(
+    (id: string) => {
+      setTasks((ts) => ts.filter((t) => t.id !== id));
+      withSaving(() => db.deleteTaskRow(supabase, id));
     },
     [supabase, withSaving]
   );
@@ -429,6 +463,7 @@ export default function Dashboard({
               ["clients", "👥 Clients & Simulateur"],
               ["catalogue", "📋 Catalogue & Marges"],
               ["pipeline", "📊 Pipeline & Export"],
+              ["tasks", "✅ Tableau de bord"],
             ] as [Tab, string][]
           ).map(([id, label]) => (
             <button
@@ -460,6 +495,10 @@ export default function Dashboard({
 
       {tab === "pipeline" && (
         <PipelineTab clients={clients} compute={compute} settings={settings} patchSettings={patchSettings} />
+      )}
+
+      {tab === "tasks" && (
+        <TasksTab tasks={tasks} clients={clients} addTask={addTask} updateTask={updateTask} deleteTask={deleteTask} />
       )}
 
       {tab === "clients" && (
